@@ -1,5 +1,5 @@
 resource "aws_iam_role" "weather_station_lambda" {
-  name = "weather-station"
+  name = "example-weather-station"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -15,7 +15,7 @@ resource "aws_iam_role" "weather_station_lambda" {
 }
 
 resource "aws_iam_policy" "weather_station_lambda_cloudwatch_logs" {
-  name = "weather-station-cloudwatch-logs"
+  name = "example-weather-station-cloudwatch-logs"
 
   policy = jsonencode({
     Version : "2012-10-17",
@@ -28,7 +28,8 @@ resource "aws_iam_policy" "weather_station_lambda_cloudwatch_logs" {
         ],
         Resource : [
           "${aws_cloudwatch_log_group.weather_station_get.arn}:*",
-          "${aws_cloudwatch_log_group.weather_station_update.arn}:*"
+          "${aws_cloudwatch_log_group.weather_station_update.arn}:*",
+          "${aws_cloudwatch_log_group.weather_station_authorizer.arn}:*"
         ]
       }
     ]
@@ -36,7 +37,7 @@ resource "aws_iam_policy" "weather_station_lambda_cloudwatch_logs" {
 }
 
 resource "aws_iam_policy" "weather_station_dynamo" {
-  name = "weather-station-dynamo"
+  name = "example-weather-station-dynamo"
 
   policy = jsonencode({
     Version : "2012-10-17",

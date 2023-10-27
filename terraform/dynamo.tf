@@ -1,5 +1,5 @@
 resource "aws_dynamodb_table" "weather_station" {
-  name         = "weather"
+  name         = "example-weather"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "key"
 

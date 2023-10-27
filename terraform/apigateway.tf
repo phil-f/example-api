@@ -1,5 +1,5 @@
 resource "aws_apigatewayv2_api" "weather_station" {
-  name          = "weather-station-api-gateway"
+  name          = "example-weather-station-api-gateway"
   protocol_type = "HTTP"
   disable_execute_api_endpoint = true
 
@@ -52,14 +52,25 @@ resource "aws_apigatewayv2_integration" "weather_station_update" {
   payload_format_version = "2.0"
 }
 
+resource "aws_apigatewayv2_integration" "weather_station_authorizer" {
+  api_id                 = aws_apigatewayv2_api.weather_station.id
+  integration_type       = "AWS_PROXY"
+  integration_method     = "POST"
+  integration_uri        = aws_lambda_function.weather_station_authorizer.invoke_arn
+}
+
 resource "aws_apigatewayv2_route" "get_weather" {
   api_id    = aws_apigatewayv2_api.weather_station.id
   route_key = "GET /weather"
+  authorization_type = "CUSTOM"
+  authorizer_id = aws_apigatewayv2_authorizer.weather_station.id
   target    = "integrations/${aws_apigatewayv2_integration.weather_station_get.id}"
 }
 
 resource "aws_apigatewayv2_route" "update_weather" {
   api_id    = aws_apigatewayv2_api.weather_station.id
   route_key = "POST /weather"
+  authorization_type = "CUSTOM"
+  authorizer_id = aws_apigatewayv2_authorizer.weather_station.id
   target    = "integrations/${aws_apigatewayv2_integration.weather_station_update.id}"
 }
