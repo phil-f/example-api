@@ -1,5 +1,5 @@
 resource "aws_apigatewayv2_api" "weather_station" {
-  name          = "example-weather-station-api-gateway"
+  name          = "${var.resource_prefix}weather-station-api-gateway"
   protocol_type = "HTTP"
   disable_execute_api_endpoint = true
 
@@ -11,7 +11,7 @@ resource "aws_apigatewayv2_api" "weather_station" {
 }
 
 resource "aws_apigatewayv2_domain_name" "weather_station" {
-  domain_name = var.domain
+  domain_name = local.domain
 
   domain_name_configuration {
     certificate_arn = aws_acm_certificate.this.arn

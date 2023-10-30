@@ -1,6 +1,6 @@
 resource "cloudflare_record" "weather_station" {
   zone_id = var.cloudflare_zone_id
-  name    = var.domain
+  name    = local.domain
   value   = aws_apigatewayv2_domain_name.weather_station.domain_name_configuration[0].target_domain_name
   type    = "CNAME"
   proxied = true
@@ -12,7 +12,7 @@ resource "cloudflare_record" "cert_validation" {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
-    } if dvo.domain_name == var.domain
+    } if dvo.domain_name == local.domain
   }
 
   zone_id = var.cloudflare_zone_id
