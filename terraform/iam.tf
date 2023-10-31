@@ -1,5 +1,6 @@
-resource "aws_iam_role" "weather_station_lambda" {
-  name = "${var.resource_prefix}weather-station"
+// Get Lambda
+resource "aws_iam_role" "get_weather" {
+  name = "${var.resource_prefix}get-weather"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -14,8 +15,8 @@ resource "aws_iam_role" "weather_station_lambda" {
   })
 }
 
-resource "aws_iam_policy" "weather_station_lambda_cloudwatch_logs" {
-  name = "${var.resource_prefix}weather-station-cloudwatch-logs"
+resource "aws_iam_policy" "get_weather_cloudwatch" {
+  name = "${var.resource_prefix}get-weather-cloudwatch"
 
   policy = jsonencode({
     Version : "2012-10-17",
@@ -27,17 +28,63 @@ resource "aws_iam_policy" "weather_station_lambda_cloudwatch_logs" {
           "logs:PutLogEvents"
         ],
         Resource : [
-          "${aws_cloudwatch_log_group.weather_station_get.arn}:*",
-          "${aws_cloudwatch_log_group.weather_station_update.arn}:*",
-          "${aws_cloudwatch_log_group.weather_station_authorizer.arn}:*"
+          "${aws_cloudwatch_log_group.get_weather.arn}:*",
+          "${aws_cloudwatch_log_group.update_weather.arn}:*",
+          "${aws_cloudwatch_log_group.weather_authorizer.arn}:*"
         ]
       }
     ]
   })
 }
 
-resource "aws_iam_policy" "weather_station_dynamo" {
-  name = "${var.resource_prefix}weather-station-dynamo"
+resource "aws_iam_policy" "get_weather_dynamo" {
+  name = "${var.resource_prefix}get-weather-dynamo"
+
+  policy = jsonencode({
+    Version : "2012-10-17",
+    Statement : [
+      {
+        Effect : "Allow",
+        Action : [
+          "dynamodb:DescribeTable",
+          "dynamodb:GetItem",
+          "dynamodb:Query",
+        ],
+        Resource : aws_dynamodb_table.weather.arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "get_weather_cloudwatch" {
+  role       = aws_iam_role.get_weather.name
+  policy_arn = aws_iam_policy.get_weather_cloudwatch.arn
+}
+
+resource "aws_iam_role_policy_attachment" "get_weather_dynamo" {
+  role       = aws_iam_role.get_weather.name
+  policy_arn = aws_iam_policy.get_weather_dynamo.arn
+}
+
+// Update Lambda
+resource "aws_iam_role" "update_weather" {
+  name = "${var.resource_prefix}update-weather"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "update_weather_dynamo" {
+  name = "${var.resource_prefix}update-weather-dynamo"
 
   policy = jsonencode({
     Version : "2012-10-17",
@@ -47,22 +94,78 @@ resource "aws_iam_policy" "weather_station_dynamo" {
         Action : [
           "dynamodb:DescribeTable",
           "dynamodb:PutItem",
-          "dynamodb:GetItem",
-          "dynamodb:Query",
           "dynamodb:UpdateItem"
         ],
-        Resource : aws_dynamodb_table.weather_station.arn
+        Resource : aws_dynamodb_table.weather.arn
       }
     ]
   })
 }
 
-resource "aws_iam_role_policy_attachment" "weather_station_lambda_cloudwatch_logs" {
-  role       = aws_iam_role.weather_station_lambda.name
-  policy_arn = aws_iam_policy.weather_station_lambda_cloudwatch_logs.arn
+resource "aws_iam_policy" "update_weather_cloudwatch" {
+  name = "${var.resource_prefix}update-weather-cloudwatch"
+
+  policy = jsonencode({
+    Version : "2012-10-17",
+    Statement : [
+      {
+        Effect : "Allow",
+        Action : [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        Resource : "${aws_cloudwatch_log_group.update_weather.arn}:*"
+      }
+    ]
+  })
 }
 
-resource "aws_iam_role_policy_attachment" "weather_station_dynamo" {
-  role       = aws_iam_role.weather_station_lambda.name
-  policy_arn = aws_iam_policy.weather_station_dynamo.arn
+resource "aws_iam_role_policy_attachment" "update_weather_cloudwatch" {
+  role       = aws_iam_role.update_weather.name
+  policy_arn = aws_iam_policy.update_weather_cloudwatch.arn
+}
+
+resource "aws_iam_role_policy_attachment" "update_weather_dynamo" {
+  role       = aws_iam_role.update_weather.name
+  policy_arn = aws_iam_policy.update_weather_dynamo.arn
+}
+
+// Authorizer Lambda
+resource "aws_iam_role" "weather_authorizer" {
+  name = "${var.resource_prefix}weather-authorizer"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "weather_authorizer_cloudwatch" {
+  name = "${var.resource_prefix}weather-authorizer-cloudwatch"
+
+  policy = jsonencode({
+    Version : "2012-10-17",
+    Statement : [
+      {
+        Effect : "Allow",
+        Action : [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        Resource : "${aws_cloudwatch_log_group.weather_authorizer.arn}:*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "weather_authorizer_cloudwatch" {
+  role       = aws_iam_role.weather_authorizer.name
+  policy_arn = aws_iam_policy.weather_authorizer_cloudwatch.arn
 }

@@ -1,4 +1,4 @@
-resource "aws_acm_certificate" "this" {
+resource "aws_acm_certificate" "weather" {
   domain_name               = local.domain
   validation_method         = "DNS"
 
@@ -7,9 +7,7 @@ resource "aws_acm_certificate" "this" {
   }
 }
 
-resource "aws_acm_certificate_validation" "this" {
-  for_each = cloudflare_record.cert_validation
-
-  certificate_arn         = aws_acm_certificate.this.arn
-  validation_record_fqdns = [each.value.hostname]
+resource "aws_acm_certificate_validation" "weather" {
+  certificate_arn         = aws_acm_certificate.weather.arn
+  validation_record_fqdns = [for record in cloudflare_record.cert_validation : record.hostname]
 }

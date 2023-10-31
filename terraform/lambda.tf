@@ -1,7 +1,7 @@
-resource "aws_lambda_function" "weather_station_get" {
+resource "aws_lambda_function" "get_weather" {
   filename         = "../app/get-weather/index.zip"
-  function_name    = "${var.resource_prefix}computerstad-weather-station-get"
-  role             = aws_iam_role.weather_station_lambda.arn
+  function_name    = "${var.resource_prefix}get-weather"
+  role             = aws_iam_role.get_weather.arn
   handler          = "index.handler"
   source_code_hash = filebase64sha256("../app/get-weather/index.zip")
   runtime          = "nodejs18.x"
@@ -11,22 +11,22 @@ resource "aws_lambda_function" "weather_station_get" {
 
   environment {
     variables = {
-      WEATHER_TABLE_NAME = aws_dynamodb_table.weather_station.id  
+      WEATHER_TABLE_NAME = aws_dynamodb_table.weather.id  
     }
   }
 }
 
-resource "aws_lambda_permission" "weather_station_get" {
+resource "aws_lambda_permission" "get_weather" {
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.weather_station_get.function_name
+  function_name = aws_lambda_function.get_weather.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_apigatewayv2_api.weather_station.execution_arn}/*/*"
+  source_arn    = "${aws_apigatewayv2_api.weather.execution_arn}/*/*"
 }
 
-resource "aws_lambda_function" "weather_station_update" {
+resource "aws_lambda_function" "update_weather" {
   filename         = "../app/update-weather/index.zip"
-  function_name    = "${var.resource_prefix}computerstad-weather-station-update"
-  role             = aws_iam_role.weather_station_lambda.arn
+  function_name    = "${var.resource_prefix}update-weather"
+  role             = aws_iam_role.update_weather.arn
   handler          = "index.handler"
   source_code_hash = filebase64sha256("../app/update-weather/index.zip")
   runtime          = "nodejs18.x"
@@ -36,22 +36,22 @@ resource "aws_lambda_function" "weather_station_update" {
 
   environment {
     variables = {
-      WEATHER_TABLE_NAME = aws_dynamodb_table.weather_station.id
+      WEATHER_TABLE_NAME = aws_dynamodb_table.weather.id
     }
   }
 }
 
-resource "aws_lambda_permission" "weather_station_update" {
+resource "aws_lambda_permission" "update_weather" {
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.weather_station_update.function_name
+  function_name = aws_lambda_function.update_weather.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_apigatewayv2_api.weather_station.execution_arn}/*/*"
+  source_arn    = "${aws_apigatewayv2_api.weather.execution_arn}/*/*"
 }
 
-resource "aws_lambda_function" "weather_station_authorizer" {
+resource "aws_lambda_function" "weather_authorizer" {
   filename         = "../app/authorizer/index.zip"
-  function_name    = "${var.resource_prefix}weather-station-authorizer"
-  role             = aws_iam_role.weather_station_lambda.arn
+  function_name    = "${var.resource_prefix}weather-authorizer"
+  role             = aws_iam_role.weather_authorizer.arn
   handler          = "index.handler"
   source_code_hash = filebase64sha256("../app/authorizer/index.zip")
   runtime          = "nodejs18.x"
@@ -60,9 +60,9 @@ resource "aws_lambda_function" "weather_station_authorizer" {
   timeout          = 3
 }
 
-resource "aws_lambda_permission" "weather_station_authorizer" {
+resource "aws_lambda_permission" "weather_authorizer" {
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.weather_station_authorizer.function_name
+  function_name = aws_lambda_function.weather_authorizer.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_apigatewayv2_api.weather_station.execution_arn}/*/*"
+  source_arn    = "${aws_apigatewayv2_api.weather.execution_arn}/*/*"
 }
