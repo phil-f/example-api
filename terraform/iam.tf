@@ -1,4 +1,4 @@
-// Get Lambda
+# get-weather
 resource "aws_iam_role" "get_weather" {
   name = "${var.resource_prefix}get-weather"
   assume_role_policy = jsonencode({
@@ -66,7 +66,7 @@ resource "aws_iam_role_policy_attachment" "get_weather_dynamo" {
   policy_arn = aws_iam_policy.get_weather_dynamo.arn
 }
 
-// Update Lambda
+# update-weather
 resource "aws_iam_role" "update_weather" {
   name = "${var.resource_prefix}update-weather"
   assume_role_policy = jsonencode({
@@ -130,7 +130,7 @@ resource "aws_iam_role_policy_attachment" "update_weather_dynamo" {
   policy_arn = aws_iam_policy.update_weather_dynamo.arn
 }
 
-// Authorizer Lambda
+# weather-authorizer
 resource "aws_iam_role" "weather_authorizer" {
   name = "${var.resource_prefix}weather-authorizer"
   assume_role_policy = jsonencode({
