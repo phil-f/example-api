@@ -13,7 +13,7 @@ export async function handler(event) {
     {
       return {
         statusCode: 400,
-        body: "bad request - description cannot be null."
+        body: "bad request - description cannot be empty."
       };
     }
 
