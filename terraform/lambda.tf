@@ -1,9 +1,9 @@
 resource "aws_lambda_function" "get_weather" {
-  filename         = "../app/get-weather/index.zip"
+  filename         = var.get_weather_archive
   function_name    = "${var.resource_prefix}get-weather"
   role             = aws_iam_role.get_weather.arn
   handler          = "index.handler"
-  source_code_hash = filebase64sha256("../app/get-weather/index.zip")
+  source_code_hash = filebase64sha256(var.get_weather_archive)
   runtime          = "nodejs18.x"
   architectures    = ["arm64"]
   memory_size      = 128
@@ -24,11 +24,11 @@ resource "aws_lambda_permission" "get_weather" {
 }
 
 resource "aws_lambda_function" "update_weather" {
-  filename         = "../app/update-weather/index.zip"
+  filename         = var.update_weather_archive
   function_name    = "${var.resource_prefix}update-weather"
   role             = aws_iam_role.update_weather.arn
   handler          = "index.handler"
-  source_code_hash = filebase64sha256("../app/update-weather/index.zip")
+  source_code_hash = filebase64sha256(var.update_weather_archive)
   runtime          = "nodejs18.x"
   architectures    = ["arm64"]
   memory_size      = 128
@@ -49,11 +49,11 @@ resource "aws_lambda_permission" "update_weather" {
 }
 
 resource "aws_lambda_function" "weather_authorizer" {
-  filename         = "../app/authorizer/index.zip"
+  filename         = var.weather_authorizer_archive
   function_name    = "${var.resource_prefix}weather-authorizer"
   role             = aws_iam_role.weather_authorizer.arn
   handler          = "index.handler"
-  source_code_hash = filebase64sha256("../app/authorizer/index.zip")
+  source_code_hash = filebase64sha256(var.weather_authorizer_archive)
   runtime          = "nodejs18.x"
   architectures    = ["arm64"]
   memory_size      = 128
